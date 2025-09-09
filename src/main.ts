@@ -1,24 +1,52 @@
-import './style.css'
-import typescriptLogo from './typescript.svg'
-import viteLogo from '/vite.svg'
-import { setupCounter } from './counter.ts'
+const taskInput:HTMLInputElement | null = document.querySelector('#taskInput');
+const taskBtn:HTMLButtonElement | null = document.querySelector("#taskBtn");
+const taskList:HTMLUListElement | null = document.querySelector("#taskList");
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="${viteLogo}" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://www.typescriptlang.org/" target="_blank">
-      <img src="${typescriptLogo}" class="logo vanilla" alt="TypeScript logo" />
-    </a>
-    <h1>Vite + TypeScript</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite and TypeScript logos to learn more
-    </p>
-  </div>
-`
+type taskType = {
+  id:string | number
+  text:string
+}
+let tasks:Array<taskType> = []
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
+function addTask():void{
+  if(taskInput){
+      const taskTxt = taskInput.value.trim();
+      if(taskTxt == '')return 
+      tasks.push({
+        text:taskTxt,
+        id:Date.now()
+      })
+      taskInput.value = "";
+      render()
+
+  }
+}
+
+function deleteTask(task : taskType):void{
+  tasks = tasks.filter((item:taskType) => item.id!==task.id);
+  render();
+}
+
+
+
+function render():void{
+  if(taskList){
+    taskList.innerHTML = "";
+    tasks.forEach((item: taskType,index:number) => {
+      const li:HTMLLIElement= document.createElement("li");
+      li.className = "flex justify-between items-center p-2 border-b ";
+      const span : HTMLSpanElement = document.createElement('span');
+      span.className = "cursor-pointer";
+      span.textContent = `${item.id.toString().slice(0,4)} - ${item.text}`;
+      const button : HTMLButtonElement = document.createElement("button");
+      button.className = "bg-red-500 text-white px-2 py-1 rounded-md";
+      button.textContent = "Sil";
+      button.addEventListener("click", () => deleteTask(item));
+      li.appendChild(span);
+      li.appendChild(button);
+      taskList.appendChild(li);
+    })
+  }
+}
+
+taskBtn?.addEventListener("click",addTask)
